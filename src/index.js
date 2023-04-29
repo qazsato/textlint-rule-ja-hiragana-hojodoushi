@@ -6,19 +6,12 @@ const createMatcher = require("morpheme-match-all");
 const yaml = require("js-yaml");
 
 const path = require("path");
-const untildify = require("untildify");
 
-const defaultOptions = {
-  rulePath: __dirname + "/../dict/hojodoushi.yml"
-};
+const text = fs.readFileSync(path.join(__dirname, "/../dict/hojodoushi.yml"), "utf-8");
 
-function loadDictionaries(rulePath, baseDir) {
-  if (typeof rulePath === "undefined" || rulePath ==="") {
-    return null;
-  }
-  const expandedRulePath = untildify(rulePath);
+function loadDictionaries() {
   const dictionaries = [];
-  const data = yaml.safeLoad(fs.readFileSync(path.resolve(baseDir, expandedRulePath), "utf8"));
+  const data = yaml.safeLoad(text);
 
   data.dict.forEach(function (item) {
     var form = "";
@@ -35,9 +28,8 @@ function loadDictionaries(rulePath, baseDir) {
   return dictionaries;
 }
 
-function reporter(context, userOptions = {}) {
-  const options = Object.assign(defaultOptions, userOptions);
-  const matchAll = createMatcher(loadDictionaries(options.rulePath, getConfigBaseDir(context)));
+function reporter(context) {
+  const matchAll = createMatcher(loadDictionaries());
   const {Syntax, RuleError, report, getSource, fixer} = context;
   return {
     [Syntax.Str](node){ // "Str" node
@@ -75,15 +67,6 @@ function getIndexFromTokens(tokenIndex, actualTokens) {
   }
   return index;
 }
-
-// from https://github.com/textlint-rule/textlint-rule-prh/blob/master/src/textlint-rule-prh.js#L147
-const getConfigBaseDir = context => {
-  if (typeof context.getConfigBaseDir === "function") {
-    return context.getConfigBaseDir() || process.cwd();
-  }
-  const textlintRcFilePath = context.config ? context.config.configFile : null;
-  return textlintRcFilePath ? path.dirname(textlintRcFilePath) : process.cwd();
-};
 
 module.exports = {
   linter: reporter,
