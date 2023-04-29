@@ -19,7 +19,7 @@
   "devDependencies": {
     "eslint": "^3.17.1",
     "promised-csv": "^1.0.1",
-    "textlint-scripts": "^1.2.2"
+    "textlint-scripts": "^3.0.0"
   },
   "name": "textlint-rule-ja-hiragana-hojodoushi",
   "directories": {
